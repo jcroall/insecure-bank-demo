@@ -40,4 +40,17 @@ jobs:
           # Path to SARIF file relative to the root of the repository
           sarif_file: coverityResults-sarif.json
 
+      # If this run was triggered by a pull request event, then checkout
+      # the head of the pull request instead of the merge commit.
+      - run: git checkout HEAD^2
+        if: ${{ github.event_name == 'pull_request' }}
+        
+      - name: Run Coverity Incremental Scan (pull_request)
+        if: ${{github.event_name == 'pull_request'}}
+        run: |
+          coverity capture
+          cov-run-desktop --analyze-scm-modified --scm git
+          cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
+          echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
+          node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
           
