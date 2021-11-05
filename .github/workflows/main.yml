@@ -30,6 +30,7 @@ jobs:
         run: |
           coverity scan
           cov-format-errors --dir idir --json-output-v8 coverityResults.json
+          echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
           node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
       
       - name: Upload SARIF file (push)
