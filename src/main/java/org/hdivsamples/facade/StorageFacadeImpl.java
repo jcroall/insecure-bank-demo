@@ -17,6 +17,7 @@ public class StorageFacadeImpl implements StorageFacade {
 	public boolean exists(final String fileName) {
     // JC: This line has defect
 	File file = new File(url + fileName);
+  File file2 = new File(url + fileName);
 	// return(true);
 
 	return(true);
