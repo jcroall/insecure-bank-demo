@@ -29,3 +29,15 @@ jobs:
         if: ${{github.event_name == 'push'}}
         run: |
           coverity scan
+          cov-format-errors --json-output-v8 coverityResults.json
+          GIT_REF=`git rev-parse HEAD`
+          node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GIT_REF --outputFile coverityResults-sarif.json
+      
+      - name: Upload SARIF file (push)
+        if: ${{github.event_name == 'pull_request'}}
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: coverityResults-sarif.json
+
+          
