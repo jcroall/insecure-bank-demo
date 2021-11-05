@@ -29,7 +29,7 @@ jobs:
         if: ${{github.event_name == 'push'}}
         run: |
           coverity scan
-          cov-format-errors --json-output-v8 coverityResults.json
+          cov-format-errors --dir idir --json-output-v8 coverityResults.json
           GIT_REF=`git rev-parse HEAD`
           node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GIT_REF --outputFile coverityResults-sarif.json
       
