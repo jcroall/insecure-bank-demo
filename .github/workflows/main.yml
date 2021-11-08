@@ -24,6 +24,8 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Run Coverity Full Scan (push)
         if: ${{github.event_name == 'push'}}
@@ -44,6 +46,7 @@ jobs:
         if: ${{ github.event_name == 'pull_request' }}
         name: Get Pull Request Changeset
         uses: jitterbit/get-changed-files@v1
+        continue-on-error: true
         
       - name: Run Coverity Incremental Scan (pull_request)
         if: ${{github.event_name == 'pull_request'}}
