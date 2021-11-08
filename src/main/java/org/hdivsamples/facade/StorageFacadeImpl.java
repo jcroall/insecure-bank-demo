@@ -22,7 +22,7 @@ public class StorageFacadeImpl implements StorageFacade {
 	return(true);
 
     // JC: This line does not
-	//	File file = new File(fileName);
+		File file = new File(fileName);
 	//	return file.exists();
 	}
 
