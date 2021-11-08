@@ -62,4 +62,11 @@ jobs:
           
           echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
           node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
-          
+        continue-on-error: true
+
+      - name: Upload SARIF file (pull_request)
+        if: ${{github.event_name == 'pull_request'}}
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: coverityResults-sarif.json
