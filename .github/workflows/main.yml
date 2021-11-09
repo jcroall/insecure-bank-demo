@@ -54,8 +54,8 @@ jobs:
           echo EXEC: coverity capture
           coverity capture
           
-          echo EXEC: cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --exit1-if-defects true ${{ steps.changeset.outputs.added_modified }}
-          cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --exit1-if-defects true ${{ steps.changeset.outputs.added_modified }}
+          echo EXEC: cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false ${{ steps.changeset.outputs.added_modified }}
+          cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false ${{ steps.changeset.outputs.added_modified }}
           
           echo EXEC: cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
           cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
