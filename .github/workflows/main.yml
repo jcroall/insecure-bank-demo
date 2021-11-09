@@ -54,14 +54,14 @@ jobs:
           echo EXEC: coverity capture
           coverity capture
           
-          echo EXEC: cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false ${{ steps.changeset.outputs.added_modified }}
-          cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false ${{ steps.changeset.outputs.added_modified }}
+          echo EXEC: cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --json-output-v7 coverityResults.json ${{ steps.changeset.outputs.added_modified }}
+          cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --json-output-v7 coverityResults.json ${{ steps.changeset.outputs.added_modified }}
           
-          echo EXEC: cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
-          cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
+          #echo EXEC: cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
+          #cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
           
-          echo EXEC: cat coverityResults.json
-          cat coverityResults.json
+          #echo EXEC: cat coverityResults.json
+          #cat coverityResults.json
 
           echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
           node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
