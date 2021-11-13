@@ -27,46 +27,61 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Coverity Full Scan (push)
-        if: ${{github.event_name == 'push'}}
-        run: |
-          coverity scan
-          cov-format-errors --dir idir --json-output-v8 coverityResults.json
-          echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
-          node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
+
+      # Runs a Black Duck intelligent scan on commits to master
+      - name: Run Baseline Black Duck Scan (manual, workflow dispatch)
+        if: ${{github.event_name == 'workflow_dispatch'}}
+        uses: jcroall/blackduck-scan-action@v3
+        with:
+          url: https://testing.blackduck.synopsys.com
+          token: ${{ secrets.BLACKDUCK_TOKEN }}
+          mode: intelligent
       
+      
+      # Runs a Black Duck rapid scan on push
+      - name: Run Black Duck security scan (push)
+        if: ${{github.event_name == 'push'}}
+        uses: jcroall/blackduck-scan-action@v3
+        with:
+          url: https://testing.blackduck.synopsys.com
+          token: ${{ secrets.BLACKDUCK_TOKEN }}
+          mode: rapid
+          output: blackduck-output
+          fix_pr: true
+          debug: 9
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+          
       - name: Upload SARIF file (push)
         if: ${{github.event_name == 'push'}}
         uses: github/codeql-action/upload-sarif@v1
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: coverityResults-sarif.json
+          sarif_file: blackduck-sarif.json
+          
 
-      - id: changeset
-        if: ${{ github.event_name == 'pull_request' }}
-        name: Get Pull Request Changeset
-        uses: jitterbit/get-changed-files@v1
-        continue-on-error: true
-        
-      - name: Run Coverity Incremental Scan (pull_request)
+      # Runs a Black Duck rapid scan on push
+      - name: Run Black Duck security scan (pull_request)
         if: ${{github.event_name == 'pull_request'}}
-        run: |
-          echo EXEC: coverity capture
-          coverity capture
-          
-          echo EXEC: cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --json-output-v7 coverityResults.json ${{ steps.changeset.outputs.added_modified }}
-          cov-run-desktop --dir idir --url https://local.cim.com --stream insecure-bank --ignore-uncapturable-inputs true --present-in-reference false --json-output-v7 coverityResults.json ${{ steps.changeset.outputs.added_modified }}
-          
-          #echo EXEC: cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
-          #cov-commit-defects --url https://local.cim.com --auth-key-file /home/jcroall/.coverity/authkeys/ak-local.cim.com-443 --stream insecure-bank --preview-report-v2 coverityResults.json --dir idir
-          
-          echo EXEC: node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
-          node /home/jcroall/cov-analysis-linux64-2021.9.0/SARIF/cov-format-sarif-for-github --inputFile coverityResults.json --repoName jcroall/insecure-bank-demo --checkoutPath jcroall/insecure-bank-demo `pwd` $GITHUB_SHA --outputFile coverityResults-sarif.json
+        uses: jcroall/blackduck-scan-action@v3
+        with:
+          url: https://testing.blackduck.synopsys.com
+          token: ${{ secrets.BLACKDUCK_TOKEN }}
+          mode: rapid
+          output: blackduck-output
+          comment_on_pr: true
+          incremental_results: true
+          debug: 9
         continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 
       - name: Upload SARIF file (pull_request)
         if: ${{github.event_name == 'pull_request'}}
         uses: github/codeql-action/upload-sarif@v1
         with:
           # Path to SARIF file relative to the root of the repository
-          sarif_file: coverityResults-sarif.json
+          sarif_file: blackduck-sarif.json
