@@ -8,7 +8,7 @@ jobs:
 
     env:
       COVERITY_URL: https://local.cim.com
-      COVERITY_USER: ${{ secrets.COV_USER }}
+      COVERITY_USERNAME: ${{ secrets.COVERITY_USERNAME }}
       COVERITY_PASSPHRASE: ${{ secrets.COVERITY_PASSPHRASE }}
       COVERITY_PROJECT: $GITHUB_REPO
       COVERITY_CHECKERS: --webapp-security
@@ -24,13 +24,15 @@ jobs:
         run: |
           COVERITY_PROJECT_NAME=`echo $COVERITY_PROJECT | tr '/' '-'`
           COVERITY_STREAM_NAME="$COVERITY_PROJECT_NAME"-${GITHUB_REF##*/}
-          cov-manage-im --url $COVERITY_URL --user $COVERITY_USER --mode projects --add --set name:"$COVERITY_PROJECT_NAME" --set description:"$COVERITY_PROJECT_NAME"
-          cov-manage-im --url $COVERITY_URL --user $COVERITY_USER --mode streams --add --set name:"$COVERITY_STREAM_NAME" --set description:"$COVERITY_STREAM_NAME"
-          cov-manage-im --url $COVERITY_URL --user $COVERITY_USER --mode projects --update --name "$COVERITY_PROJECT_NAME" --insert stream:"$COVERITY_STREAM_NAME"
+          cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode projects --add --set name:"$COVERITY_PROJECT_NAME" --set description:"$COVERITY_PROJECT_NAME"
+          cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode streams --add --set name:"$COVERITY_STREAM_NAME" --set description:"$COVERITY_STREAM_NAME"
+          cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode projects --update --name "$COVERITY_PROJECT_NAME" --insert stream:"$COVERITY_STREAM_NAME"
         continue-on-error: true
 
       - name: Coverity full scan
         run: |
+          COVERITY_PROJECT_NAME=`echo $COVERITY_PROJECT | tr '/' '-'`
+          COVERITY_STREAM_NAME="$COVERITY_PROJECT_NAME"-${GITHUB_REF##*/}
           cov-capture --project-dir . --dir idir
           cov-analyze --dir idir --ticker-mode none --strip-path $GITHUB_WORKSPACE $CHECKERS
           cov-commit-defects --dir idir --ticker-mode none --url $COVERITY_URL --stream $COVERITY_STREAM_NAME --scm git --description $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/ actions/runs/$GITHUB_RUN_ID --target $RUNNER_OS --version $GITHUB_SHA
