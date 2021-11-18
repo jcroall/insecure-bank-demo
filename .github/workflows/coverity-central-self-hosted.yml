@@ -24,6 +24,8 @@ jobs:
         run: |
           COVERITY_PROJECT_NAME=`echo $COVERITY_PROJECT | tr '/' '-'`
           COVERITY_STREAM_NAME="$COVERITY_PROJECT_NAME"-${GITHUB_REF##*/}
+          echo INFO: Coverity project name: $COVERITY_PROJECT_NAME
+          echo INFO: Coverity stream name: $COVERITY_STREAM_NAME
           cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode projects --add --set name:"$COVERITY_PROJECT_NAME" --set description:"$COVERITY_PROJECT_NAME"
           cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode streams --add --set name:"$COVERITY_STREAM_NAME" --set description:"$COVERITY_STREAM_NAME"
           cov-manage-im --url $COVERITY_URL --user $COVERITY_USERNAME --mode projects --update --name "$COVERITY_PROJECT_NAME" --insert stream:"$COVERITY_STREAM_NAME"
@@ -33,9 +35,11 @@ jobs:
         run: |
           COVERITY_PROJECT_NAME=`echo $COVERITY_PROJECT | tr '/' '-'`
           COVERITY_STREAM_NAME="$COVERITY_PROJECT_NAME"-${GITHUB_REF##*/}
+          echo INFO: Coverity project name: $COVERITY_PROJECT_NAME
+          echo INFO: Coverity stream name: $COVERITY_STREAM_NAME
           cov-capture --project-dir . --dir idir
           cov-analyze --dir idir --ticker-mode none --strip-path $GITHUB_WORKSPACE $CHECKERS
-          cov-commit-defects --dir idir --ticker-mode none --url $COVERITY_URL --stream $COVERITY_STREAM_NAME --scm git --description $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/ actions/runs/$GITHUB_RUN_ID --target $RUNNER_OS --version $GITHUB_SHA
+          cov-commit-defects --dir idir --ticker-mode none --url $COVERITY_URL --stream "$COVERITY_STREAM_NAME" --scm git --description "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --target $RUNNER_OS --version $GITHUB_SHA
 
       - name: Coverity security gate
         run: |
